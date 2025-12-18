@@ -1,0 +1,2 @@
+Building_Footprints_*.geojson filter=lfs diff=lfs merge=lfs -text
+sb79_sf_parcel_results.geojson filter=lfs diff=lfs merge=lfs -text
