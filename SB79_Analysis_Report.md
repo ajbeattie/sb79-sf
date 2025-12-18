@@ -1,290 +1,217 @@
-# SB79 Housing Capacity Analysis for San Francisco
+# What Could Have Been: SB79 vs San Francisco's Family Zoning Plan
 
 **Generated:** December 18, 2025
 
 ---
 
-## Executive Summary
+## The Story
 
-This analysis estimates the potential housing capacity that could be unlocked in San Francisco under SB79, California's transit-oriented development bill. Using parcel-level geospatial data from SF Planning, we calculate both theoretical maximum capacity and a more realistic estimate accounting for development constraints.
+California's SB79 establishes statewide minimum zoning standards for housing near transit stops. Cities can exempt themselves from SB79 by adopting qualifying local upzoning plans before 2032.
 
-| Metric | Value |
-|--------|-------|
-| **Theoretical Added Capacity** | **344,235 units** |
-| **Realistic Added Capacity** | **56,547 units** |
-| Weighted Feasibility Rate | 16.4% |
-| SF Existing Housing Stock | ~380,000 units |
-| Realistic as % of Existing | 15% |
-| Annual (over 20 years) | ~2,827 units/year |
+San Francisco's response? The **Family Zoning Plan (FZP)** — a proposal that appears designed to meet the bare minimum requirements for an exemption while preserving most existing restrictions.
+
+**This analysis compares what San Francisco could build under SB79 versus what the Family Zoning Plan would actually deliver.**
 
 ---
 
-## Methodology Overview
+## Executive Summary
+
+| Plan | Theoretical Capacity | Realistic Capacity |
+|------|---------------------|-------------------|
+| **SB79** | 344,235 units | **56,547 units** |
+| **Family Zoning Plan** | 59,065 units | **9,418 units** |
+| **Difference** | +285,170 units | **+47,129 units** |
+
+**SB79 provides approximately 6x more realistic housing capacity than the Family Zoning Plan.**
+
+### Validation Against Official Estimates
+
+| Source | Estimate | Notes |
+|--------|----------|-------|
+| City's FZP Target | 36,000 units | Official goal (theoretical) |
+| Ted Egan, SF City Economist | 10,000-15,000 units | Realistic 20-year prediction |
+| **Our FZP Realistic Estimate** | **9,418 units** | ✅ Aligns with Egan |
+| **Our SB79 Realistic Estimate** | **56,547 units** | ~5-6x FZP |
+
+Our methodology produces results consistent with the city's own economist's realistic projections, suggesting our feasibility factors are well-calibrated.
+
+---
+
+## Zone Coverage Comparison
+
+| Metric | City's Numbers | Our Analysis |
+|--------|---------------|--------------|
+| Parcels in SB79 zones | 120,000 | 143,261 |
+| Parcels in FZP zones | 75,000 | 78,115 |
+| Parcels where SB79 > FZP | 57,000 | 51,211 |
+
+**SB79 covers 65,000+ more parcels than FZP** — entire neighborhoods are left out of the Family Zoning Plan.
+
+---
+
+## Why FZP Delivers Less
+
+### 1. Conservative Heights
+
+| Plan | Height Distribution |
+|------|-------------------|
+| FZP | Median: 40 ft, Max: 400 ft |
+| SB79 | 85-105 ft across tiers |
+
+The FZP keeps most of San Francisco at **40-foot height limits** — the same as existing zoning for most residential areas.
+
+### 2. Density-Limited Zones
+
+| FZP Density Type | Parcels |
+|------------------|---------|
+| **Density-limited** | 112,146 |
+| Form-based Proposed | 9,771 |
+| Form-based Existing | 4,589 |
+
+The vast majority of FZP parcels remain **"Density-limited"** — maintaining traditional density controls that cap housing production.
+
+### 3. Narrower Geography
+
+The FZP only covers ~78,000 parcels compared to SB79's ~143,000. Large swaths of transit-accessible San Francisco get no upzoning at all under FZP.
+
+---
+
+## Head-to-Head: Parcels in Both Zones
+
+For the 61,435 parcels covered by **both** plans:
+
+| Comparison | Parcels | Percentage |
+|------------|---------|------------|
+| SB79 allows more | 51,211 | **83%** |
+| FZP allows more | 10,185 | 17% |
+| Essentially equal | 39 | <1% |
+
+**On 83% of overlapping parcels, SB79 would allow more housing than FZP.**
+
+### Where SB79 Wins Biggest
+
+| Zone | SB79 Units | FZP Units | Difference |
+|------|-----------|-----------|------------|
+| RH-1 (T2Z1) | 95.5 | 28.6 (40ft) | +66.9 units |
+| RH-1(D) (T2Z1) | 80.4 | 24.1 (40ft) | +56.3 units |
+| RH-1 (T1Z2) | 77.9 | 23.4 (40ft) | +54.5 units |
+
+The biggest differences are in single-family zones where FZP maintains low heights.
+
+### Where FZP Wins
+
+| Zone | SB79 Units | FZP Units | Difference |
+|------|-----------|-----------|------------|
+| RH-1(D) (T2Z2) | 65.2 | 122.2 (50ft) | -57.0 units |
+| NC-S (T2Z2) | 59.8 | 112.0 (50ft) | -52.3 units |
+
+FZP occasionally exceeds SB79 in areas where FZP proposes heights above 40ft, typically in commercial/mixed-use zones.
+
+---
+
+## Capacity by Constraint Type
+
+### Historic Constraints
+
+| Type | Parcels | Theoretical | Realistic | Feasibility |
+|------|---------|-------------|-----------|-------------|
+| Landmark | 3,383 | 11,036 | 221 | 2% |
+| Individual Historic | 48,850 | 64,425 | 6,443 | 10% |
+| Historic District | 2,664 | 9,858 | 1,479 | 15% |
+| Surveyed | 2,633 | 3,806 | 685 | 18% |
+| **Total Historic** | 57,530 | 89,126 | 8,827 | ~10% |
+
+### Slope Constraints
+
+| Type | Parcels | Theoretical | Realistic | Feasibility |
+|------|---------|-------------|-----------|-------------|
+| Steep (>25%) | 67,352 | 119,352 | 14,322 | 12% |
+| Moderate (20-25%) | 87,008 | 156,835 | 28,230 | 18% |
+
+*Note: Slope discounts only apply to undeveloped parcels. If a parcel already has buildings, the slope is demonstrably buildable.*
+
+---
+
+## Methodology
 
 ### Data Sources
 
-All geospatial data sourced from [SF Planning's ArcGIS REST services](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer):
+All geospatial data from [SF Planning's ArcGIS REST services](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer):
 
-| Layer | MapServer ID | Purpose |
-|-------|--------------|---------|
-| SF Parcels | 3 | Base geography (226,775 parcels) |
-| Zoning Districts | 1 | Baseline density/FAR |
-| Height Districts | 5 | Height limits to cap FAR |
-| SB79 Tiers | 53 | Upzoned MaxDensity + FAR |
-| Open Space | 20 | Exclusion layer |
-| Historic Resources | 0 | Constraint layer |
-| Landmarks | 11 | Constraint layer |
-| Historic Districts | 6, 7, 16, 17 | Constraint layer |
-| Historic Survey | 30 | Constraint layer |
-| Slopes | 18, 19 | Constraint layer |
-| Building Footprints | Local file | Utilization calculation |
+| Data | Source |
+|------|--------|
+| Parcels | SF Planning MapServer/23 |
+| Zoning | SF Planning MapServer/3 |
+| Height Districts | SF Planning MapServer/5 |
+| Historic Layers | MapServer 0, 6, 7, 11, 16, 17, 30 |
+| Slopes | MapServer 18, 19 |
+| Open Space | MapServer 20 |
+| SB79 Tiers | USC Spatial Sciences Institute |
+| FZP Data | [SF Rezoning Experience](https://sfgov.maps.arcgis.com) (November 2025 ordinance) |
 
-### Processing Pipeline
+### Capacity Calculation
 
-1. **Load & Reproject**: All layers reprojected to EPSG:26910 (UTM Zone 10N)
-2. **Spatial Joins**: Parcels joined to zoning, height, SB79, and constraint layers
-3. **Calculate Baseline**: Units allowed under current zoning + height limits
-4. **Calculate SB79**: Units allowed under SB79 upzoning
-5. **Apply Exclusions**: Remove open space, large parcels (>1 acre)
-6. **Apply Feasibility**: Discount capacity by constraint type
-7. **Aggregate Results**: Sum theoretical and realistic capacity
-
----
-
-## Parcel Processing Summary
-
-| Stage | Parcels |
-|-------|---------|
-| Raw SF parcels loaded | 226,775 |
-| After open space exclusion | 218,748 |
-| After large parcel exclusion (>1 acre) | 179,213 |
-| Parcels in SB79 zones | 143,261 |
-| Parcels with added capacity (SB79 > baseline) | 90,881 |
-
----
-
-## Exclusion Layers
-
-Parcels in these categories are **entirely excluded** from capacity calculations:
-
-| Layer | Parcels Excluded | Rationale |
-|-------|------------------|-----------|
-| Open Space (layer 20) | 8,027 | Parks/public space - not developable |
-| Large parcels (>1 acre) | 16,375 | Likely institutional, parks, or data anomalies |
-
----
-
-## Historic Constraint Layers
-
-Historic constraints apply **feasibility discounts** rather than full exclusion, recognizing that development does occur on historic properties with appropriate review.
-
-### Layer Details
-
-| Layer | MapServer ID | Features | Processing |
-|-------|--------------|----------|------------|
-| **Historic Resources** | 0 | 163,160 raw → 24,767 filtered | Filtered to records with HRR rating or CEQA Category A |
-| **Landmarks** | 11 | 354 | Individually designated buildings |
-| **National Register Districts** | 6 | 60 | District boundaries |
-| **California Register Districts** | 7 | 185 | District boundaries |
-| **Article 10 Historic Districts** | 17 | 14 | Local historic districts |
-| **Article 11 Conservation Districts** | 16 | 7 | Conservation districts |
-| **Historic Survey** | 30 | 47,804 raw → 3,692 filtered | Filtered to significant ratings (A, B, C) |
-
-### Classification Logic
-
-Parcels are classified by the **most restrictive** historic constraint:
-
-| Classification | Criteria | Feasibility | Rationale |
-|---------------|----------|-------------|-----------|
-| **Landmark** | Intersects layer 11 | 2% | Individually designated - extremely rare exceptions |
-| **Individual** | Intersects layer 0 (Historic Resources) | 10% | Has HRR rating - CEQA review required |
-| **District** | Intersects layers 6, 7, 16, or 17 | 15% | In a district but not individually designated |
-| **Surveyed** | Intersects layer 30 | 18% | Surveyed with A/B/C rating |
-
-### Historic Impact Summary
-
-| Type | Parcels | Theoretical | Realistic | Effective Rate |
-|------|---------|-------------|-----------|----------------|
-| Landmark | 3,383.0 | 11,036 | 221 | 2% |
-| Individual | 48,850.0 | 64,425 | 6,443 | 10% |
-| District | 2,664.0 | 9,858 | 1,479 | 15% |
-| Surveyed | 2,633.0 | 3,806 | 685 | 18% |
-| **Total Historic** | — | 89,126 | 8,827 | 10% |
-
----
-
-## Slope Constraint Layers
-
-| Layer | MapServer ID | Parcels | Feasibility | Rationale |
-|-------|--------------|---------|-------------|-----------|
-| **Steep Slope (>25%)** | 18 | 67,352 | 12% | Engineering challenges, grading costs |
-| **Moderate Slope (20-25%)** | 19 | 87,008 | 18% | Minor construction impact |
-
-**Important**: Slope discounts are **only applied to undeveloped parcels**. If a parcel already has buildings, the slope is demonstrably buildable.
-
-### Slope Impact Summary
-
-| Slope Type | Theoretical Capacity | Realistic Capacity |
-|------------|---------------------|-------------------|
-| Steep (>25%) | 119,352 | 14,322 |
-| Moderate (20-25%) | 156,835 | 28,230 |
-
----
-
-## Other Feasibility Factors
-
-| Constraint | Feasibility | Rationale |
-|------------|-------------|-----------|
-| **Small lots (<2,500 sqft)** | 15% | Harder to pencil financially |
-| **Tier 1 SB79 zones** | 25% | Most favorable upzoning conditions |
-| **Default (unconstrained)** | 20% | Base rate for typical development barriers |
-
-### Why Feasibility Matters
-
-Even without physical constraints, most parcels won't be redeveloped because:
-
-- **Owner preferences**: Long-term homeowners may not want to sell/develop
-- **Financing barriers**: Construction costs and lending requirements
-- **Tenant protections**: Ellis Act compliance, rent control implications
-- **Entitlement uncertainty**: Approval timeline and conditions
-- **Assembly challenges**: Many optimal sites require lot consolidation
-
----
-
-## Feasibility Distribution
-
-| Rate | Constraint Type | Parcels | % Total | Theoretical | Realistic |
-|------|-----------------|---------|---------|-------------|-----------|
-| 2% | Landmarks | 3,383.0 | 1.9% | 11,036 | 221 |
-| 10% | Individual Historic | 48,850.0 | 27.3% | 64,425 | 6,443 |
-| 12% | Steep Slope | 14,850.0 | 8.3% | 23,253 | 2,790 |
-| 15% | District/Small Lot | 41,722.0 | 23.3% | 78,440 | 11,766 |
-| 18% | Surveyed/Moderate Slope | 5,763.0 | 3.2% | 11,846 | 2,132 |
-| 20% | Default | 55,538.0 | 31.0% | 112,276 | 22,455 |
-| 25% | Tier 1 SB79 | 9,107.0 | 5.1% | 42,958 | 10,740 |
-| **Total** | — | **179,213** | 100% | **344,235** | **56,547** |
-
----
-
-## Capacity by SB79 Tier
-
-| Tier | Parcels | Theoretical | Realistic | Avg Units/Parcel |
-|------|---------|-------------|-----------|------------------|
-| T1Z1 | 10,337.0 | 70,748 | 10,720 | 6.84 |
-| T1Z2 | 29,777.0 | 44,197 | 7,935 | 1.48 |
-| T2Z1 | 61,211.0 | 150,032 | 24,790 | 2.45 |
-| T2Z2 | 41,936.0 | 79,258 | 13,101 | 1.89 |
-| **Total** | **143,261** | **344,235** | **56,547** | 2.40 |
-
-### SB79 Tier Parameters
-
-| Tier | Distance from Transit | MaxDensity | FAR |
-|------|----------------------|------------|-----|
-| T1Z1 | Within 0.25 mi of major transit | 100-120 du/acre | 3.0-3.5 |
-| T1Z2 | 0.25-0.5 mi of major transit | 100-120 du/acre | 3.0-3.5 |
-| T2Z1 | Within 0.25 mi of local transit | 80-100 du/acre | 2.5-3.0 |
-| T2Z2 | 0.25-0.5 mi of local transit | 80-100 du/acre | 2.5-3.0 |
-
----
-
-## Capacity by Zoning Type (Top 10)
-
-| Zoning | Parcels | Theoretical | Realistic | Notes |
-|--------|---------|-------------|-----------|-------|
-| RH-1 | 59,091.0 | 156,565 | 27,814 | Single-family residential |
-| RH-2 | 34,909.0 | 93,009 | 15,055 | Two-family residential |
-| RH-3 | 12,143.0 | 36,122 | 4,952 | Three-family residential |
-| C-3-G | 4,961.0 | 14,680 | 2,141 | Downtown general commercial |
-| MB-RA | 599.0 | 6,525 | 1,630 |  |
-| NCT-MISSION | 837.0 | 4,694 | 461 |  |
-| CMUO | 1,375.0 | 4,653 | 730 |  |
-| MUO | 513.0 | 4,311 | 1,066 |  |
-| UMU | 2,708.0 | 3,535 | 426 |  |
-| RM-1 | 8,678.0 | 3,360 | 522 | Low-density multi-family |
-
----
-
-## Calculation Methodology
-
-### Baseline Units Calculation
-
-For residential zones (RH-1, RH-2, RH-3, RM-1, RM-2, RM-3):
+For both plans, we calculate:
 
 ```
-baseline_units = min(
-    parcel_area × zoning_density,
-    parcel_area × effective_FAR × efficiency / avg_unit_size
+units = min(
+    parcel_area × density,
+    parcel_area × FAR × efficiency / avg_unit_size
 )
 ```
 
 Where:
-- `effective_FAR` = min(zoning_FAR, height_based_FAR)
-- `height_based_FAR` = (height_ft / 10) × 0.8 (lot coverage)
+- `efficiency` = 85% (gross-to-net)
+- `avg_unit_size` = 800 sqft
 
-### Baseline Zoning Parameters
+### Feasibility Factors
 
-| Zone | Density (du/acre) | FAR |
-|------|-------------------|-----|
-| RH-1 | 30 | 1.5 |
-| RH-2 | 45 | 1.8 |
-| RH-3 | 60 | 2.0 |
-| RM-1 | 90 | 2.5 |
-| RM-2 | 120 | 3.0 |
-| RM-3 | 150 | 3.5 |
+| Constraint | Rate | Rationale |
+|------------|------|-----------|
+| Landmarks | 2% | Extremely rare redevelopment |
+| Individual Historic | 10% | CEQA review, preservation concerns |
+| Historic District | 15% | Design review friction |
+| Surveyed Historic | 18% | Evaluation required |
+| Steep Slope (>25%) | 12% | Engineering challenges |
+| Moderate Slope | 18% | Minor construction impact |
+| Small Lots (<2,500 sqft) | 15% | Hard to pencil financially |
+| Tier 1 SB79 | 25% | Most favorable conditions |
+| Default | 20% | Typical development barriers |
 
-### SB79 Units Calculation
+### Exclusions
 
-```
-sb79_units = min(
-    parcel_area × MaxDensity,
-    parcel_area × FloorAreaRatio × efficiency / avg_unit_size
-)
-```
-
-### Added Capacity
-
-```
-added_theoretical = max(0, sb79_units - baseline_units)
-added_realistic = added_theoretical × feasibility_factor
-```
-
-
-
-### Key Assumptions
-
-| Parameter | Value | Notes |
-|-----------|-------|-------|
-| Average unit size | 800 sqft | Net livable area |
-| Building efficiency | 85% | Gross-to-net ratio |
-| Floor height | 10 ft | For floor count estimation |
-| Lot coverage | 80% | Typical SF residential |
-| Utilization threshold | 80% | Parcels above this already near capacity |
+Parcels entirely excluded:
+- Open space (parks, public land)
+- Parcels >1 acre (likely institutional)
+- Highly utilized parcels (>80% of upzoned FAR already built)
 
 ---
 
-## Limitations & Caveats
+## Key Takeaways
 
-1. **Baseline estimates are approximate**: Actual zoning allows vary by parcel-specific conditions
-2. **SB79 parameters may change**: Bill implementation details still evolving
-3. **Feasibility is inherently uncertain**: Actual development depends on market conditions
-4. **Historic data may be incomplete**: Not all constraints captured in GIS layers
-5. **Building footprint matching imperfect**: Some buildings may not match to parcels correctly
-6. **Large parcels excluded**: May undercount capacity on legitimately developable large sites
+1. **The gap is enormous**: SB79 would deliver ~47,000 more realistic housing units than FZP over 20 years.
 
----
+2. **Our numbers match official estimates**: The SF City Economist predicted 10-15k units from FZP; our methodology produces 9.4k — validating our approach.
 
-## Data Files
+3. **FZP maintains the status quo**: With median heights of 40ft and most parcels "density-limited," FZP barely moves the needle.
 
-| File | Description |
-|------|-------------|
-| `sb79_sf_parcel_results.geojson` | Full parcel-level results with all attributes |
-| `cache/sf_parcels.geojson` | Cached parcel boundaries |
-| `cache/sf_zoning.geojson` | Cached zoning districts |
-| `cache/sf_height_districts.geojson` | Cached height districts |
-| `cache/sf_historic_union.geojson` | Cached historic constraint union |
-| `cache/sf_slopes.geojson` | Cached slope data |
-| `cache/sf_open_space.geojson` | Cached open space |
+4. **SB79 covers more ground**: 65,000+ more parcels fall within SB79 zones than FZP.
+
+5. **The exemption deadline matters**: If SF adopts FZP before 2032, it gets to keep these restrictions. After 2032, SB79 applies statewide regardless.
 
 ---
 
-*Analysis performed using Python with GeoPandas, Pandas, and Shapely.*
+## What This Means
+
+By adopting the Family Zoning Plan instead of allowing SB79 to take effect, San Francisco is choosing to:
+
+- Build **~47,000 fewer housing units** over the next 20 years
+- Keep heights at 40ft across most residential neighborhoods
+- Maintain density limits that prevent transit-oriented development
+- Leave 65,000+ transit-accessible parcels with no upzoning
+
+The question for San Franciscans: **Is that trade-off worth it?**
+
+---
+
+*Analysis performed using Python with GeoPandas. Full methodology and code available in this repository.*

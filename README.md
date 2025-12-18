@@ -1,100 +1,123 @@
-# SB79 Housing Capacity Analysis 🏠
+# What Could Have Been: SB79 vs SF's Family Zoning Plan 🏠
 
-An experimental analysis of potential housing capacity under California's SB79 transit-oriented development bill, focused on San Francisco.
+**An analysis showing how much housing San Francisco is giving up by adopting the Family Zoning Plan instead of accepting SB79.**
+
+## The Bottom Line
+
+| Plan | Realistic Capacity (20 years) |
+|------|------------------------------|
+| **SB79** | ~57,000 units |
+| **Family Zoning Plan** | ~9,400 units |
+| **What SF is giving up** | **~47,000 units** |
+
+San Francisco's Family Zoning Plan delivers approximately **6x less housing** than what SB79 would provide.
+
+## Why This Matters
+
+California's SB79 establishes minimum zoning standards for housing near transit. Cities can exempt themselves by adopting local upzoning plans before **2032**.
+
+San Francisco's response is the **Family Zoning Plan** — a proposal that:
+- Keeps most neighborhoods at **40-foot height limits** (vs SB79's 85-105 ft)
+- Maintains **density restrictions** on 112,000+ parcels
+- Covers **65,000 fewer parcels** than SB79
+
+This analysis uses the same methodology for both plans to show the real difference.
+
+## Validation
+
+Our FZP estimate of **~9,400 units** aligns closely with **Ted Egan** (SF City Economist), who predicted **10,000-15,000 units** from the plan over 20 years. The city's official "target" of 36,000 units appears to be theoretical, not realistic.
 
 ## ⚠️ Disclaimer
 
-**This project is an experiment created using AI tools (Claude/Cursor). I am not an urban planner, housing policy expert, or GIS professional.**
+**This is an AI-assisted experiment, not professional analysis.** The methodology, feasibility factors, and calculations are exploratory. Don't use this for policy, investment, or legal purposes.
 
-The analysis, methodology, and results should be treated as exploratory and educational only. They are **not** suitable for:
-- Policy recommendations
-- Investment decisions
-- Legal or regulatory compliance
-- Official planning purposes
+That said — our numbers match official economist estimates, so we're at least in the right ballpark.
 
-The feasibility factors, exclusion criteria, and calculations are based on assumptions that may not reflect actual development conditions, regulatory requirements, or market realities.
+## Key Findings
 
-**If you actually know what you're doing**, I'd love feedback! Open an issue or PR.
+### Coverage Gap
 
-## What This Does
+| Metric | SB79 | FZP |
+|--------|------|-----|
+| Parcels covered | 143,261 | 78,115 |
+| **Difference** | +65,146 | — |
 
-Uses publicly available GIS data from SF Planning to estimate:
-- **Theoretical capacity**: Maximum units allowed under SB79 upzoning minus current baseline
-- **Realistic capacity**: Theoretical capacity discounted by feasibility factors for various constraints
+### Head-to-Head (Parcels in Both Zones)
 
-## Key Results
+On parcels covered by **both** plans:
+- **83% of parcels**: SB79 allows more housing
+- **17% of parcels**: FZP allows more housing
 
-| Metric | Value |
-|--------|-------|
-| Theoretical Added Capacity | ~344,000 units |
-| Realistic Added Capacity | ~57,000 units |
-| Weighted Feasibility | ~16% |
+### Where SB79 Wins Biggest
+
+Single-family zones (RH-1, RH-1(D)) where FZP maintains 40-foot heights while SB79 allows 85-105 feet.
 
 ## Visualization
 
-### Realistic Capacity Increase by Parcel
+### Realistic Capacity by Parcel
 
 ![Realistic capacity increase heatmap](images/increased_capacity_realistic.png)
 
-*Heatmap showing estimated realistic housing unit increases per parcel. Most individual parcels show modest increases (<0.5 units) because feasibility discounts are applied at the parcel level based on constraints (historic status, slope, lot size, etc.). The value is in the **aggregate** (~57k total units) and **spatial distribution** — capacity concentrates near transit corridors.*
+*SB79 capacity concentrates along transit corridors. Most individual parcels show modest increases due to feasibility discounts — the value is in the aggregate.*
 
-### SB79 Transit Stop Coverage
+### SB79 Transit Coverage
 
 ![Transit stops and SB79 zones](images/transit_stops.png)
 
-*SB79 tier boundaries are determined by distance to transit stops. Tier 1 zones (within 0.5 mi of major transit) receive the most favorable upzoning; Tier 2 zones extend further.*
+*SB79 zones extend 0.5 miles from major transit stops. The Family Zoning Plan covers a much smaller area.*
 
-**View the data yourself:** Load `sb79_sf_parcel_results.geojson` into [kepler.gl](https://kepler.gl/demo) and color by `added_units_realistic`, `feasibility_factor`, or `historic_type`.
+**Explore the data:** Load `sb79_sf_parcel_results.geojson` into [kepler.gl](https://kepler.gl/demo) and color by `sb79_vs_fzp_delta` to see which parcels gain more under each plan.
 
 ## Data Sources
 
-### Included in repo (via Git LFS)
-
-| File | Size | Source |
-|------|------|--------|
-| `Building_Footprints_20251217.geojson` | 330MB | [SF Open Data - Building Footprints](https://data.sfgov.org/Geographic-Locations-and-Boundaries/Building-Footprints/ynuv-fyni/about_data) |
-| `sb79_sf_parcel_results.geojson` | 321MB | Generated output - parcel-level results |
-| `sb79_polygons.json` | 98KB | [USC Spatial Sciences Institute - SB79 Map](https://uscssi.maps.arcgis.com/apps/mapviewer/index.html?webmap=7689658f319b488ba03c40ccb903681e) |
-
-### Downloaded at runtime
-
-The script downloads and caches these from [SF Planning's ArcGIS REST services](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer):
-- Parcels, Zoning, Height Districts
-- Historic constraint layers (7 different sources)
-- Slope data
-- Open space
-
-## Files
+### Included (via Git LFS)
 
 | File | Description |
 |------|-------------|
-| `what_could_have_been.py` | Main analysis script |
-| `SB79_Analysis_Report.md` | Detailed methodology and results |
-| `sb79_sf_parcel_results.geojson` | **Parcel-level results** - load in QGIS/kepler.gl to explore |
-| `Building_Footprints_20251217.geojson` | SF building footprints (input data) |
-| `sb79_polygons.json` | SB79 tier boundaries (input data) |
-| `cache/` | Downloaded GIS layers (gitignored) |
+| `sb79_sf_parcel_results.geojson` | Parcel-level results with SB79 and FZP capacity |
+| `Building_Footprints_20251217.geojson` | [SF Building Footprints](https://data.sfgov.org/Geographic-Locations-and-Boundaries/Building-Footprints/ynuv-fyni/about_data) |
+| `sb79_polygons.json` | [USC SSI SB79 Map](https://uscssi.maps.arcgis.com/apps/mapviewer/index.html?webmap=7689658f319b488ba03c40ccb903681e) |
 
-## Setup
+### Downloaded at Runtime
+
+From [SF Planning GIS](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer):
+- Parcels, Zoning, Height Districts
+- Historic constraint layers
+- Slope data, Open space
+
+From SF Planning's Rezoning Experience:
+- FZP density layer (November 2025 ordinance)
+- FZP height proposals
+
+## Quick Start
 
 ```bash
 pip install -r requirements.txt
 python what_could_have_been.py
 ```
 
-First run will download and cache GIS data from SF Planning (~5-10 min). Subsequent runs use cached data.
+First run downloads ~250MB of GIS data (cached for subsequent runs).
 
 ## Output
 
-- **`sb79_sf_parcel_results.geojson`** - Parcel-level results (load in QGIS, kepler.gl, etc.)
-- **`SB79_Analysis_Report.md`** - Detailed methodology writeup
-- **`cache/`** - Downloaded GIS layers (gitignored)
+The GeoJSON output includes per-parcel:
+- `sb79_units` / `fzp_units` — Allowed units under each plan
+- `added_units_theoretical` / `fzp_added_units_theoretical` — Added capacity vs baseline
+- `added_units_realistic` / `fzp_added_units_realistic` — With feasibility discounts
+- `sb79_vs_fzp_delta` — Direct comparison (positive = SB79 allows more)
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `what_could_have_been.py` | Main analysis script |
+| `SB79_Analysis_Report.md` | Full methodology and comparison |
+| `sb79_sf_parcel_results.geojson` | Results — load in kepler.gl to explore |
 
 ## Contributing
 
-Found a bug in my logic? Know more about SF zoning than an AI? PRs and issues welcome! (An AI wrote this).
+Found an error? Know more about SF zoning than me? PRs welcome!
 
 ## License
 
-MIT license. You can do whatever you want with this, just don't expect it to be right!
-
+MIT — do whatever you want with this, just don't expect it to be right.

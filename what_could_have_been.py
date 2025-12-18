@@ -67,6 +67,23 @@ SB79_URL = (
 )
 
 # ============================================================
+# Family Zoning Plan (FZP) - November 2025 proposal
+# Board File 250700-v5
+# ============================================================
+
+FZP_BASE_DENSITY_URL = (
+    "https://services.arcgis.com/Zs2aNLFN00jrS4gG/arcgis/rest/services/"
+    "Rezoning_November_2025_Base_Density/FeatureServer/2/query"
+    "?where=1=1&outFields=*&returnGeometry=true&f=geojson"
+)
+
+FZP_HEIGHTS_URL = (
+    "https://services.arcgis.com/Zs2aNLFN00jrS4gG/arcgis/rest/services/"
+    "Rezoning_November_17_2025/FeatureServer/2/query"
+    "?where=1=1&outFields=*&returnGeometry=true&f=geojson"
+)
+
+# ============================================================
 # Local cache paths
 # ============================================================
 
@@ -77,6 +94,8 @@ HEIGHT_CACHE = CACHE_DIR / "sf_height_districts.geojson"
 HISTORIC_CACHE = CACHE_DIR / "sf_historic_union.geojson"
 SLOPE_CACHE = CACHE_DIR / "sf_slopes.geojson"
 OPEN_SPACE_CACHE = CACHE_DIR / "sf_open_space.geojson"
+FZP_DENSITY_CACHE = CACHE_DIR / "sf_fzp_density.geojson"
+FZP_HEIGHTS_CACHE = CACHE_DIR / "sf_fzp_heights.geojson"
 
 # Building footprints (local file - not from ArcGIS)
 BUILDING_FOOTPRINTS_PATH = Path(__file__).parent / "Building_Footprints_20251217.geojson"
@@ -332,6 +351,15 @@ else:
 print("Downloading SB79 tiers...")  # Don't cache SB79 - may change
 sb79 = download_geojson(SB79_URL, cache_path=None)
 
+# Load FZP (Family Zoning Plan) data
+print("Loading FZP density layer...")
+fzp_density = download_geojson(FZP_BASE_DENSITY_URL, cache_path=FZP_DENSITY_CACHE)
+print(f"  Loaded {len(fzp_density):,} FZP density records")
+
+print("Loading FZP heights layer...")
+fzp_heights = download_geojson(FZP_HEIGHTS_URL, cache_path=FZP_HEIGHTS_CACHE)
+print(f"  Loaded {len(fzp_heights):,} FZP height records")
+
 # Reproject to planar CRS for area math
 CRS = "EPSG:26910"  # UTM zone 10N (SF)
 parcels = parcels.to_crs(CRS)
@@ -345,6 +373,8 @@ open_space = open_space.to_crs(CRS)
 if buildings is not None:
     buildings = buildings.to_crs(CRS)
 sb79 = sb79.to_crs(CRS)
+fzp_density = fzp_density.to_crs(CRS)
+fzp_heights = fzp_heights.to_crs(CRS)
 
 # ============================================================
 # Prepare parcel points
@@ -633,6 +663,53 @@ sb79_final_count = parcel_sb79[parcel_sb79["TZ"].notna()]
 print(f"  Final parcels in SB79 zones: {len(sb79_final_count):,}")
 
 # ============================================================
+# Join parcels → FZP (Family Zoning Plan) by mapblklot
+# ============================================================
+
+print("Joining parcels to FZP data...")
+
+# FZP data has 'mapblklot' field that matches parcel 'blklot'
+# First, check what ID field is available in parcels
+parcel_id_field = None
+for field in ["blklot", "mapblklot", "BLKLOT", "MAPBLKLOT"]:
+    if field in parcels.columns:
+        parcel_id_field = field
+        break
+
+if parcel_id_field:
+    print(f"  Using parcel ID field: {parcel_id_field}")
+    
+    # Normalize the ID field for joining
+    parcels["join_id"] = parcels[parcel_id_field].astype(str).str.strip()
+    
+    # FZP density layer
+    if "mapblklot" in fzp_density.columns:
+        fzp_density["join_id"] = fzp_density["mapblklot"].astype(str).str.strip()
+        # Keep only needed columns
+        fzp_density_slim = fzp_density[["join_id", "Nov2025_ProposedBaseDensity"]].drop_duplicates("join_id")
+        print(f"  FZP density records: {len(fzp_density_slim):,}")
+    else:
+        print("  WARNING: mapblklot not found in FZP density layer")
+        fzp_density_slim = None
+    
+    # FZP heights layer - has more detailed info
+    fzp_height_cols = ["mapblklot", "BaseHeight", "ProposedZoning", "CurrentZoning", 
+                       "NEW_HEIGHT_NUM", "HeightDistrictApproved"]
+    available_cols = [c for c in fzp_height_cols if c in fzp_heights.columns]
+    
+    if "mapblklot" in available_cols:
+        fzp_heights["join_id"] = fzp_heights["mapblklot"].astype(str).str.strip()
+        fzp_heights_slim = fzp_heights[["join_id"] + [c for c in available_cols if c != "mapblklot"]].drop_duplicates("join_id")
+        print(f"  FZP heights records: {len(fzp_heights_slim):,}")
+    else:
+        print("  WARNING: mapblklot not found in FZP heights layer")
+        fzp_heights_slim = None
+else:
+    print("  WARNING: No suitable ID field found in parcels for FZP join")
+    fzp_density_slim = None
+    fzp_heights_slim = None
+
+# ============================================================
 # Merge zoning + height + SB79 info + constraints
 # ============================================================
 
@@ -662,6 +739,20 @@ if parcel_historic_type is not None:
         on="parcel_id",
         how="left",
     )
+
+# Add FZP data
+if parcel_id_field:
+    parcel_all["join_id"] = parcel_all[parcel_id_field].astype(str).str.strip()
+    
+    if fzp_density_slim is not None:
+        parcel_all = parcel_all.merge(fzp_density_slim, on="join_id", how="left")
+        fzp_matched = parcel_all["Nov2025_ProposedBaseDensity"].notna().sum()
+        print(f"  Matched {fzp_matched:,} parcels with FZP density data")
+    
+    if fzp_heights_slim is not None:
+        parcel_all = parcel_all.merge(fzp_heights_slim, on="join_id", how="left")
+        fzp_height_matched = parcel_all["BaseHeight"].notna().sum()
+        print(f"  Matched {fzp_height_matched:,} parcels with FZP height data")
 
 # ============================================================
 # Add existing built area and calculate utilization
@@ -868,12 +959,85 @@ def sb79_units(row):
 parcel_all["sb79_units"] = parcel_all.apply(sb79_units, axis=1)
 
 # ============================================================
-# Added capacity
+# FZP capacity (Family Zoning Plan)
+# ============================================================
+
+def fzp_units(row):
+    """Calculate units allowed under Family Zoning Plan.
+    
+    FZP uses two types of density:
+    - "Form-based Existing" or "Form-based Proposed" = no density limit, just height controls
+    - "Density-limited" = keeps traditional density controls
+    
+    FZP BaseHeight gives the proposed height in feet.
+    """
+    area_sf = row["parcel_area_sf"]
+    
+    # Check if parcel has FZP data
+    density_type = row.get("Nov2025_ProposedBaseDensity")
+    fzp_height = row.get("BaseHeight")
+    
+    # If no FZP height data, this parcel is NOT covered by FZP
+    # Return 0 to indicate no FZP capacity (not baseline!)
+    if pd.isna(fzp_height) or fzp_height is None:
+        return 0.0
+    
+    # Ensure height is numeric
+    try:
+        fzp_height = float(fzp_height)
+    except (ValueError, TypeError):
+        return 0.0
+    
+    if fzp_height <= 0:
+        return 0.0
+    
+    # Calculate FAR from height (same method as baseline)
+    max_floors = fzp_height / FLOOR_HEIGHT_FT
+    fzp_far = max_floors * 0.8
+    
+    if density_type in ("Form-based Existing", "Form-based Proposed"):
+        # Form-based = no density limit, just FAR
+        # Use high density assumption (similar to SB79 approach)
+        return units_allowed(area_sf, 150, fzp_far)
+    elif density_type == "Density-limited":
+        # Density-limited = keeps existing density controls
+        # Look up the proposed zoning for density
+        proposed_zone = row.get("ProposedZoning", "")
+        
+        # Try to find density from our baseline table
+        # FZP zones often match or are similar to existing RH/RM zones
+        for zone_key, zone_data in BASELINE_ZONING.items():
+            if zone_key in str(proposed_zone):
+                return units_allowed(area_sf, zone_data["du_ac"], fzp_far)
+        
+        # Default density for density-limited zones (moderate assumption)
+        return units_allowed(area_sf, 60, fzp_far)
+    else:
+        # Unknown density type - use moderate assumption
+        return units_allowed(area_sf, 80, fzp_far)
+
+parcel_all["fzp_units"] = parcel_all.apply(fzp_units, axis=1)
+
+# ============================================================
+# Added capacity (SB79 vs baseline and FZP vs baseline)
 # ============================================================
 
 parcel_all["added_units_theoretical"] = (
     parcel_all["sb79_units"] - parcel_all["baseline_units"]
 ).clip(lower=0)
+
+# For FZP: only count added capacity if parcel has FZP data
+# (fzp_units > 0 means parcel is in FZP zone)
+parcel_all["fzp_added_units_theoretical"] = (
+    parcel_all["fzp_units"] - parcel_all["baseline_units"]
+).clip(lower=0)
+
+# Flag parcels that are in FZP zones (have height data)
+parcel_all["in_fzp"] = parcel_all["BaseHeight"].notna()
+
+# Direct comparison: SB79 vs FZP (only meaningful where both have data)
+# For parcels not in FZP, delta is sb79 capacity (FZP gives nothing)
+parcel_all["sb79_vs_fzp_delta"] = parcel_all["sb79_units"] - parcel_all["fzp_units"]
 
 # ============================================================
 # Feasibility factors with constraints
@@ -915,6 +1079,11 @@ def feasibility(row):
 parcel_all["feasibility_factor"] = parcel_all.apply(feasibility, axis=1)
 parcel_all["added_units_realistic"] = (
     parcel_all["added_units_theoretical"] * parcel_all["feasibility_factor"]
+)
+
+# Apply same feasibility to FZP for fair comparison
+parcel_all["fzp_added_units_realistic"] = (
+    parcel_all["fzp_added_units_theoretical"] * parcel_all["feasibility_factor"]
 )
 
 # ============================================================
@@ -1015,6 +1184,106 @@ print(f"Moderate slope (20-25%): {moderate_capacity:,.0f} theoretical → {moder
 print("\n=== Capacity results ===")
 print(f"Theoretical SB79 added capacity: {parcel_all['added_units_theoretical'].sum():,.0f} units")
 print(f"Realistic SB79 added capacity:   {parcel_all['added_units_realistic'].sum():,.0f} units")
+
+# ============================================================
+# FZP vs SB79 Comparison
+# ============================================================
+
+print("\n" + "=" * 60)
+print("SB79 vs FAMILY ZONING PLAN COMPARISON")
+print("=" * 60)
+
+# Coverage comparison
+sb79_coverage = parcel_all["TZ"].notna().sum()
+fzp_coverage = parcel_all["in_fzp"].sum()
+print(f"\n=== Zone Coverage ===")
+print(f"Parcels in SB79 zones: {sb79_coverage:,}")
+print(f"Parcels in FZP zones:  {fzp_coverage:,}")
+print(f"SB79 covers {sb79_coverage - fzp_coverage:,} MORE parcels than FZP")
+
+# FZP parcels breakdown
+fzp_parcels = parcel_all[parcel_all["in_fzp"]]
+print(f"\nFZP parcels: {len(fzp_parcels):,}")
+
+if len(fzp_parcels) > 0:
+    # FZP density type distribution
+    print("\n=== FZP Density Type Distribution ===")
+    if "Nov2025_ProposedBaseDensity" in parcel_all.columns:
+        print(parcel_all["Nov2025_ProposedBaseDensity"].value_counts(dropna=False))
+    
+    # FZP height distribution
+    print("\n=== FZP Proposed Height Distribution ===")
+    if "BaseHeight" in parcel_all.columns:
+        fzp_heights_dist = parcel_all[parcel_all["BaseHeight"].notna()]["BaseHeight"].describe()
+        print(f"  Min: {fzp_heights_dist['min']:.0f} ft")
+        print(f"  Median: {fzp_heights_dist['50%']:.0f} ft")
+        print(f"  Mean: {fzp_heights_dist['mean']:.0f} ft")
+        print(f"  Max: {fzp_heights_dist['max']:.0f} ft")
+    
+    # Capacity comparison
+    print("\n=== Capacity Comparison (Same Methodology) ===")
+    print(f"{'Plan':<25} {'Theoretical':>15} {'Realistic':>15}")
+    print("-" * 55)
+    
+    sb79_theoretical = parcel_all["added_units_theoretical"].sum()
+    sb79_realistic = parcel_all["added_units_realistic"].sum()
+    fzp_theoretical = parcel_all["fzp_added_units_theoretical"].sum()
+    fzp_realistic = parcel_all["fzp_added_units_realistic"].sum()
+    
+    print(f"{'SB79':<25} {sb79_theoretical:>15,.0f} {sb79_realistic:>15,.0f}")
+    print(f"{'Family Zoning Plan':<25} {fzp_theoretical:>15,.0f} {fzp_realistic:>15,.0f}")
+    print("-" * 55)
+    print(f"{'DIFFERENCE (SB79 - FZP)':<25} {sb79_theoretical - fzp_theoretical:>+15,.0f} {sb79_realistic - fzp_realistic:>+15,.0f}")
+    
+    # Percentage difference
+    if fzp_theoretical > 0:
+        pct_more_theoretical = ((sb79_theoretical - fzp_theoretical) / fzp_theoretical) * 100
+        print(f"\nSB79 provides {pct_more_theoretical:+.1f}% more theoretical capacity than FZP")
+    if fzp_realistic > 0:
+        pct_more_realistic = ((sb79_realistic - fzp_realistic) / fzp_realistic) * 100
+        print(f"SB79 provides {pct_more_realistic:+.1f}% more realistic capacity than FZP")
+    
+    # Per-parcel comparison (only for parcels that have BOTH SB79 and FZP data)
+    both_zones = parcel_all[(parcel_all["TZ"].notna()) & (parcel_all["in_fzp"])]
+    print(f"\n=== Per-Parcel Comparison (parcels in BOTH zones: {len(both_zones):,}) ===")
+    
+    sb79_better = (both_zones["sb79_vs_fzp_delta"] > 0.1).sum()  # Use small threshold for float comparison
+    fzp_better = (both_zones["sb79_vs_fzp_delta"] < -0.1).sum()
+    equal = len(both_zones) - sb79_better - fzp_better
+    
+    print(f"Parcels where SB79 > FZP: {sb79_better:,}")
+    print(f"Parcels where FZP > SB79: {fzp_better:,}")
+    print(f"Parcels where SB79 ≈ FZP: {equal:,}")
+    
+    # Show where SB79 wins biggest (among parcels in both zones)
+    print("\n=== Biggest SB79 Advantages (parcels in both zones) ===")
+    sb79_wins = both_zones[both_zones["sb79_vs_fzp_delta"] > 0].nlargest(10, "sb79_vs_fzp_delta")
+    if len(sb79_wins) > 0:
+        for _, row in sb79_wins.head(5).iterrows():
+            zone = row.get("zoning", "Unknown")
+            tz = row.get("TZ", "N/A")
+            fzp_height = row.get("BaseHeight", "N/A")
+            delta = row["sb79_vs_fzp_delta"]
+            sb79_u = row["sb79_units"]
+            fzp_u = row["fzp_units"]
+            print(f"  {zone} ({tz}): SB79={sb79_u:.1f} vs FZP={fzp_u:.1f} (height={fzp_height}ft) → +{delta:.1f} units")
+    
+    # Show where FZP wins (among parcels in both zones)
+    print("\n=== Where FZP Exceeds SB79 (parcels in both zones) ===")
+    fzp_wins = both_zones[both_zones["sb79_vs_fzp_delta"] < -0.1].nsmallest(10, "sb79_vs_fzp_delta")
+    if len(fzp_wins) > 0:
+        for _, row in fzp_wins.head(5).iterrows():
+            zone = row.get("zoning", "Unknown")
+            tz = row.get("TZ", "N/A")
+            fzp_height = row.get("BaseHeight", "N/A")
+            delta = row["sb79_vs_fzp_delta"]
+            sb79_u = row["sb79_units"]
+            fzp_u = row["fzp_units"]
+            print(f"  {zone} ({tz}, FZP height={fzp_height}ft): SB79={sb79_u:.1f} vs FZP={fzp_u:.1f} → {delta:.1f} units")
+    else:
+        print("  (No parcels where FZP exceeds SB79)")
+else:
+    print("\nNo FZP data matched to parcels - cannot compare")
 
 # ============================================================
 # Export for inspection
