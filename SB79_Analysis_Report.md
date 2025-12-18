@@ -23,7 +23,7 @@ This analysis estimates the potential housing capacity that could be unlocked in
 
 ### Data Sources
 
-All geospatial data sourced from SF Planning's ArcGIS REST services (`sfplanninggis.org`):
+All geospatial data sourced from [SF Planning's ArcGIS REST services](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer):
 
 | Layer | MapServer ID | Purpose |
 |-------|--------------|---------|

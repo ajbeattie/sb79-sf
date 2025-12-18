@@ -54,11 +54,11 @@ Uses publicly available GIS data from SF Planning to estimate:
 |------|------|--------|
 | `Building_Footprints_20251217.geojson` | 330MB | [SF Open Data - Building Footprints](https://data.sfgov.org/Geographic-Locations-and-Boundaries/Building-Footprints/ynuv-fyni/about_data) |
 | `sb79_sf_parcel_results.geojson` | 321MB | Generated output - parcel-level results |
-| `sb79_polygons.json` | 98KB | [SF Planning GIS - SB79 Tiers](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer/53) |
+| `sb79_polygons.json` | 98KB | [USC Spatial Sciences Institute - SB79 Map](https://uscssi.maps.arcgis.com/apps/mapviewer/index.html?webmap=7689658f319b488ba03c40ccb903681e) |
 
 ### Downloaded at runtime
 
-The script downloads and caches these from SF Planning's ArcGIS REST services (`sfplanninggis.org`):
+The script downloads and caches these from [SF Planning's ArcGIS REST services](https://sfplanninggis.org/arcgiswa/rest/services/PlanningData/MapServer):
 - Parcels, Zoning, Height Districts
 - Historic constraint layers (7 different sources)
 - Slope data
