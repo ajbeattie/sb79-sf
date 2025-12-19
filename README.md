@@ -54,13 +54,19 @@ Single-family zones (RH-1, RH-1(D)) where FZP maintains 40-foot heights while SB
 
 ## Visualization
 
-### Realistic Capacity by Parcel
+### SB79 vs FZP: The Delta Map
+
+![SB79 vs FZP capacity comparison](images/sb79_fzp_delta.png)
+
+*Per-parcel comparison of housing capacity under each plan. **Blue/purple = SB79 allows more housing**, **red/orange/yellow = FZP allows more housing**. The city is overwhelmingly blue — SB79 wins on 83% of parcels where both plans apply.*
+
+### SB79 Realistic Capacity
 
 ![Realistic capacity increase heatmap](images/increased_capacity_realistic.png)
 
 *SB79 capacity concentrates along transit corridors. Most individual parcels show modest increases due to feasibility discounts — the value is in the aggregate.*
 
-### SB79 Transit Coverage
+### Transit Coverage
 
 ![Transit stops and SB79 zones](images/transit_stops.png)
 

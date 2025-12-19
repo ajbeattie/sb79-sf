@@ -35,6 +35,12 @@ San Francisco's response? The **Family Zoning Plan (FZP)** — a proposal that a
 
 Our methodology produces results consistent with the city's own economist's realistic projections, suggesting our feasibility factors are well-calibrated.
 
+### The Map Tells the Story
+
+![SB79 vs FZP capacity comparison](images/sb79_fzp_delta.png)
+
+*Per-parcel comparison: **Blue/purple = SB79 allows more housing**, **red/orange/yellow = FZP allows more**. SB79 wins on 83% of parcels where both plans apply.*
+
 ---
 
 ## Zone Coverage Comparison
