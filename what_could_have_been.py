@@ -962,23 +962,44 @@ parcel_all["sb79_units"] = parcel_all.apply(sb79_units, axis=1)
 # FZP capacity (Family Zoning Plan)
 # ============================================================
 
+# ============================================================
+# FZP Density Rules (from SF Planning documentation)
+# ============================================================
+#
+# FZP has TWO density regimes:
+#
+# 1. "Density-limited" parcels (most RH/RM zones at 40-50ft):
+#    - KEEP their existing density limits (1 unit/lot, 1 per 1,500sf, etc.)
+#    - Only get density decontrol if they opt into the Local Program
+#    - We use their CurrentZoning to determine baseline density
+#
+# 2. "Form-based Existing/Proposed" parcels (NC, C, RC, RTO-C at 65ft+):
+#    - Get density decontrol ("form-based") in base zoning
+#    - No units/acre limits - FAR is the binding constraint
+#
+# Source: FZP explainer materials - "Other residential districts generally
+# retain existing density limits, unless they use Local Program."
+
+FZP_DENSITY_DECONTROL = 500  # Effectively unlimited for form-based parcels
+
 def fzp_units(row):
     """Calculate units allowed under Family Zoning Plan.
     
-    FZP uses two types of density:
-    - "Form-based Existing" or "Form-based Proposed" = no density limit, just height controls
-    - "Density-limited" = keeps traditional density controls
+    FZP has TWO density regimes:
+    - "Density-limited": Uses existing zoning density limits
+    - "Form-based": No density limits, FAR is binding
     
-    FZP BaseHeight gives the proposed height in feet.
+    Height comes from NEW_HEIGHT_NUM (proposed FZP height).
     """
     area_sf = row["parcel_area_sf"]
+    density_type = row.get("Nov2025_ProposedBaseDensity", "")
     
-    # Check if parcel has FZP data
-    density_type = row.get("Nov2025_ProposedBaseDensity")
-    fzp_height = row.get("BaseHeight")
+    # Use NEW_HEIGHT_NUM (proposed height) if available, else BaseHeight
+    fzp_height = row.get("NEW_HEIGHT_NUM")
+    if pd.isna(fzp_height) or fzp_height is None:
+        fzp_height = row.get("BaseHeight")
     
     # If no FZP height data, this parcel is NOT covered by FZP
-    # Return 0 to indicate no FZP capacity (not baseline!)
     if pd.isna(fzp_height) or fzp_height is None:
         return 0.0
     
@@ -995,26 +1016,28 @@ def fzp_units(row):
     max_floors = fzp_height / FLOOR_HEIGHT_FT
     fzp_far = max_floors * 0.8
     
+    # Determine density based on FZP regime
     if density_type in ("Form-based Existing", "Form-based Proposed"):
-        # Form-based = no density limit, just FAR
-        # Use high density assumption (similar to SB79 approach)
-        return units_allowed(area_sf, 150, fzp_far)
-    elif density_type == "Density-limited":
-        # Density-limited = keeps existing density controls
-        # Look up the proposed zoning for density
-        proposed_zone = row.get("ProposedZoning", "")
+        # Form-based = density decontrol, FAR is binding
+        fzp_density = FZP_DENSITY_DECONTROL
+    else:
+        # Density-limited = use existing zoning's density limits
+        # Look up from CurrentZoning field
+        current_zone = str(row.get("CurrentZoning", "") or row.get("zoning", ""))
         
         # Try to find density from our baseline table
-        # FZP zones often match or are similar to existing RH/RM zones
+        fzp_density = None
         for zone_key, zone_data in BASELINE_ZONING.items():
-            if zone_key in str(proposed_zone):
-                return units_allowed(area_sf, zone_data["du_ac"], fzp_far)
+            if zone_key in current_zone or current_zone.startswith(zone_key):
+                fzp_density = zone_data["du_ac"]
+                break
         
-        # Default density for density-limited zones (moderate assumption)
-        return units_allowed(area_sf, 60, fzp_far)
-    else:
-        # Unknown density type - use moderate assumption
-        return units_allowed(area_sf, 80, fzp_far)
+        # If no match found, use a conservative default
+        if fzp_density is None:
+            # Most density-limited parcels are RH-1/RH-2, use RH-2's density
+            fzp_density = 29  # ~1 unit per 1,500sf (RH-2 baseline)
+    
+    return units_allowed(area_sf, fzp_density, fzp_far)
 
 parcel_all["fzp_units"] = parcel_all.apply(fzp_units, axis=1)
 

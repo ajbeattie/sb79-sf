@@ -4,13 +4,13 @@
 
 ## The Bottom Line
 
-| Plan | Realistic Capacity (20 years) |
-|------|------------------------------|
-| **SB79** | ~57,000 units |
-| **Family Zoning Plan** | ~9,400 units |
-| **What SF is giving up** | **~47,000 units** |
+| Plan | Theoretical Capacity | Realistic Capacity |
+|------|---------------------|-------------------|
+| **SB79** | 344,235 units | **56,547 units** |
+| **Family Zoning Plan** | 185,726 units | **28,756 units** |
+| **What SF is giving up** | +158,509 units (+85%) | **+27,790 units (+97%)** |
 
-San Francisco's Family Zoning Plan delivers approximately **6x less housing** than what SB79 would provide.
+San Francisco's Family Zoning Plan delivers approximately **half the housing** of what SB79 would provide.
 
 ## Why This Matters
 
@@ -18,20 +18,27 @@ California's SB79 establishes minimum zoning standards for housing near transit.
 
 San Francisco's response is the **Family Zoning Plan** — a proposal that:
 - Keeps most neighborhoods at **40-foot height limits** (vs SB79's 85-105 ft)
-- Maintains **density restrictions** on 112,000+ parcels
+- Maintains **density restrictions** on 112,000+ "Density-limited" parcels
 - Covers **65,000 fewer parcels** than SB79
 
 This analysis uses the same methodology for both plans to show the real difference.
 
-## Validation
+## Key Finding: FZP Keeps Density Limits
 
-Our FZP estimate of **~9,400 units** aligns closely with **Ted Egan** (SF City Economist), who predicted **10,000-15,000 units** from the plan over 20 years. The city's official "target" of 36,000 units appears to be theoretical, not realistic.
+The FZP has **two density regimes** that dramatically affect capacity:
+
+| FZP Density Type | Parcels | What It Means |
+|------------------|---------|---------------|
+| **Density-limited** | 112,146 | Keeps existing RH/RM density limits (1 unit/lot, etc.) |
+| **Form-based** | 14,360 | Density decontrol — only height/bulk limits apply |
+
+Most FZP parcels (those at 40-50ft heights) remain **density-limited** — they keep traditional density caps like 1 unit per lot for RH-1 zones. Only parcels along commercial corridors (typically 65ft+) get true density decontrol.
+
+SB79, by contrast, gives **all covered parcels** density decontrol.
 
 ## ⚠️ Disclaimer
 
 **This is an AI-assisted experiment, not professional analysis.** The methodology, feasibility factors, and calculations are exploratory. Don't use this for policy, investment, or legal purposes.
-
-That said — our numbers match official economist estimates, so we're at least in the right ballpark.
 
 ## Key Findings
 
@@ -42,15 +49,38 @@ That said — our numbers match official economist estimates, so we're at least 
 | Parcels covered | 143,261 | 78,115 |
 | **Difference** | +65,146 | — |
 
-### Head-to-Head (Parcels in Both Zones)
+### Head-to-Head (61,435 Parcels in Both Zones)
 
-On parcels covered by **both** plans:
-- **83% of parcels**: SB79 allows more housing
-- **17% of parcels**: FZP allows more housing
+| Comparison | Parcels | Percentage |
+|------------|---------|------------|
+| **SB79 allows more** | 51,215 | **83%** |
+| FZP allows more | 10,187 | 17% |
+| Essentially equal | 33 | <1% |
 
 ### Where SB79 Wins Biggest
 
-Single-family zones (RH-1, RH-1(D)) where FZP maintains 40-foot heights while SB79 allows 85-105 feet.
+Single-family zones (RH-1, RH-1(D), RTO) where FZP maintains 40-foot heights and existing density limits, while SB79 allows 85-105 feet with density decontrol.
+
+### Where FZP Wins
+
+Commercial/mixed-use zones (RC-4, NC zones) where FZP proposes significant height increases (85-260ft) with form-based zoning. These are already higher-density areas.
+
+## How We Calculate FZP Capacity
+
+```
+FZP uses two density regimes:
+
+1. "Density-limited" parcels (most residential, 40-50ft heights):
+   → Use EXISTING zoning density limits (from CurrentZoning)
+   → e.g., RH-1 = 1 unit/lot, RH-2 = 1 per 1,500sf
+   → FAR derived from FZP height
+
+2. "Form-based" parcels (commercial corridors, 65ft+ heights):
+   → Density decontrol (no units/acre limit)
+   → FAR derived from FZP height is the binding constraint
+```
+
+This matches SF Planning's documentation: *"Other residential districts generally retain existing density limits, unless they use [the optional] Local Program."*
 
 ## Visualization
 
